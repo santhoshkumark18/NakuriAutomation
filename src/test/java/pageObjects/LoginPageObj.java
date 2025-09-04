@@ -1,7 +1,5 @@
 package pageObjects;
 
-import java.time.Duration;
-
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -16,7 +14,7 @@ public class LoginPageObj extends BaseClass{
 	@FindBy(xpath="//a[contains(@class,'login') or contains(text(),'Login') or contains(@title,'Login')]")	WebElement	loginFallback;
 	@FindBy(xpath="//*[contains(@placeholder,\"Username\")]")	WebElement	username;
 	@FindBy(xpath="//*[contains(@placeholder,\"password\")]")	WebElement	password;
-	@FindBy(xpath="//button[text()=\"Login\"]")	WebElement	login_btn;
+	@FindBy(xpath="//button[.='Login']")	WebElement	login_btn;
 	@FindBy(xpath="//div[contains(@class,\"server-err\")]")	WebElement	alert_msg;
 	@FindBy(xpath="//img[@alt=\"Naukri Logo\"][1]")	WebElement	logo;
 	
