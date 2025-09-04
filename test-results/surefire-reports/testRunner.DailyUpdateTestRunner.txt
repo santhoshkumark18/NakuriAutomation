@@ -1,0 +1,19 @@
+-------------------------------------------------------------------------------
+Test set: testRunner.DailyUpdateTestRunner
+-------------------------------------------------------------------------------
+Tests run: 2, Failures: 0, Errors: 2, Skipped: 0, Time elapsed: 0.756 s <<< FAILURE! -- in testRunner.DailyUpdateTestRunner
+Daily Naukri Profile Update Automation.Daily profile update with location and resume -- Time elapsed: 0.107 s <<< ERROR!
+java.io.FileNotFoundException: /home/runner/work/NakuriAutomation/NakuriAutomation\src\test\resources\config.properties (No such file or directory)
+	at java.base/java.io.FileInputStream.open0(Native Method)
+	at java.base/java.io.FileInputStream.open(FileInputStream.java:219)
+	at java.base/java.io.FileInputStream.<init>(FileInputStream.java:157)
+	at java.base/java.io.FileInputStream.<init>(FileInputStream.java:112)
+	at java.base/java.io.FileReader.<init>(FileReader.java:60)
+	at factory.Base.getProperties(Base.java:121)
+	at factory.Base.initilizeBrowser(Base.java:27)
+	at hooks.Hooks.setup(Hooks.java:24)
+
+Daily Naukri Profile Update Automation.Daily profile update with location and resume -- Time elapsed: 0.110 s <<< ERROR!
+java.lang.NullPointerException
+	at hooks.Hooks.teardown(Hooks.java:33)
+

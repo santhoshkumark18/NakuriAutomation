@@ -1,5 +1,6 @@
 package factory;
 
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
@@ -118,7 +119,7 @@ public static WebDriver getDriver() {
 
 public static Properties getProperties() throws IOException
 {		 
-    FileReader file=new FileReader(System.getProperty("user.dir")+"\\src\\test\\resources\\config.properties");
+    FileReader file=new FileReader(System.getProperty("user.dir")+File.separator+"src"+File.separator+"test"+File.separator+"resources"+File.separator+"config.properties");
    	p=new Properties();
 	p.load(file);
 	return p;

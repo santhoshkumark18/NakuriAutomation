@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Cucumber" time="0.174" tests="1" skipped="0" failures="1" errors="0">
+<testcase classname="Daily Naukri Profile Update Automation" name="Daily profile update with location and resume" time="0.033">
+<failure type="java.io.FileNotFoundException" message="/home/runner/work/NakuriAutomation/NakuriAutomation\src\test\resources\config.properties (No such file or directory)">
+<![CDATA[java.io.FileNotFoundException: /home/runner/work/NakuriAutomation/NakuriAutomation\src\test\resources\config.properties (No such file or directory)
+	at java.base/java.io.FileInputStream.open0(Native Method)
+	at java.base/java.io.FileInputStream.open(FileInputStream.java:219)
+	at java.base/java.io.FileInputStream.<init>(FileInputStream.java:157)
+	at java.base/java.io.FileInputStream.<init>(FileInputStream.java:112)
+	at java.base/java.io.FileReader.<init>(FileReader.java:60)
+	at factory.Base.getProperties(Base.java:121)
+	at factory.Base.initilizeBrowser(Base.java:27)
+	at hooks.Hooks.setup(Hooks.java:24)
+]]>
+</failure>
+<system-out><![CDATA[
+Given I navigate to Naukri Application for daily update.....................skipped
+And I login with environment credentials....................................skipped
+When I navigate to my profile page..........................................skipped
+And I update career profile with random location selection..................skipped
+And I upload the latest resume..............................................skipped
+And I verify the profile activity is recorded...............................skipped
+]]></system-out>
+</testcase>
+</testsuite>
