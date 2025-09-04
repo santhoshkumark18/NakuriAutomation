@@ -32,6 +32,17 @@ public class DailyProfileUpdateStepDef {
         driver = Base.getDriver();
         wait = new WebDriverWait(driver, Duration.ofSeconds(15));
         lp = new LoginPageObj(driver);
+        
+        System.out.println("✓ Navigated to Naukri - Current URL: " + driver.getCurrentUrl());
+        System.out.println("✓ Page title: " + driver.getTitle());
+        
+        // Add wait for page to load completely
+        try {
+            Thread.sleep(3000); // Allow page to load
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        
         lp.selectLogin();
     }
     

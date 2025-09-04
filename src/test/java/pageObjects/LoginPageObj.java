@@ -13,6 +13,7 @@ public class LoginPageObj extends BaseClass{
 	}
 	
 	@FindBy(id="login_Layer")	WebElement	login; 
+	@FindBy(xpath="//a[contains(@class,'login') or contains(text(),'Login') or contains(@title,'Login')]")	WebElement	loginFallback;
 	@FindBy(xpath="//*[contains(@placeholder,\"Username\")]")	WebElement	username;
 	@FindBy(xpath="//*[contains(@placeholder,\"password\")]")	WebElement	password;
 	@FindBy(xpath="//button[text()=\"Login\"]")	WebElement	login_btn;
@@ -22,7 +23,46 @@ public class LoginPageObj extends BaseClass{
 	
 	public void selectLogin()
 	{
-		login.click();
+		// Since we're going directly to login page, check if login form is already visible
+		try {
+			if(username.isDisplayed()) {
+				System.out.println("✓ Login form is already visible - ready for credentials");
+				return;
+			}
+		} catch (Exception e) {
+			// Username field not visible yet, might need to wait or click login
+			System.out.println("Login form not immediately visible, attempting to locate login button...");
+		}
+		
+		try {
+			// Try primary login element
+			if(login.isDisplayed()) {
+				System.out.println("✓ Found and clicking primary login element");
+				login.click();
+			}
+		} catch (Exception e) {
+			try {
+				// Fallback to alternative login selector
+				System.out.println("Primary login element not found, trying fallback selector...");
+				loginFallback.click();
+				System.out.println("✓ Successfully clicked fallback login element");
+			} catch (Exception e2) {
+				// Final fallback - check if we're already authenticated
+				try {
+					if(driver.getCurrentUrl().contains("mymynaukri") || driver.getPageSource().contains("Welcome")) {
+						System.out.println("✓ Already logged in, skipping login step");
+						return;
+					}
+				} catch (Exception e3) {
+					// Log detailed debugging info
+					System.out.println("❌ All login attempts failed");
+					System.out.println("Current URL: " + driver.getCurrentUrl());
+					System.out.println("Page title: " + driver.getTitle());
+					System.out.println("Page source length: " + driver.getPageSource().length());
+					throw new RuntimeException("Unable to locate login element. Current URL: " + driver.getCurrentUrl());
+				}
+			}
+		}
 	}
 	public void enterCredentials(String un, String pass)
 	{
