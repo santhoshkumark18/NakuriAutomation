@@ -1,0 +1,144 @@
+name: Naukri Profile Daily Update
+
+on:
+  schedule:
+    # Runs daily at 7:30 AM IST (2:00 AM UTC)
+    - cron: '0 2 * * *'
+  workflow_dispatch: # Allows manual trigger
+
+jobs:
+  update-profile:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 11
+      uses: actions/setup-java@v4
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+        
+    - name: Cache Maven dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+        
+    - name: Install Chrome browser
+      uses: browser-actions/setup-chrome@latest
+      
+    - name: Download resume file
+      env:
+        RESUME_URL: ${{ secrets.RESUME_URL }}
+      run: |
+        mkdir -p src/test/resources/files
+        if [ ! -z "$RESUME_URL" ]; then
+          curl -L "$RESUME_URL" -o src/test/resources/files/resume.pdf
+        else
+          echo "Resume URL not provided in secrets, using existing file"
+        fi
+        
+    - name: Update config for headless execution
+      run: |
+        sed -i 's/headless=false/headless=true/' src/test/resources/config.properties
+        echo "" >> src/test/resources/config.properties
+        echo "# GitHub Actions Configuration" >> src/test/resources/config.properties
+        
+    - name: Run Naukri Profile Update Tests
+      env:
+        NAUKRI_USERNAME: ${{ secrets.NAUKRI_USERNAME }}
+        NAUKRI_PASSWORD: ${{ secrets.NAUKRI_PASSWORD }}
+        SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
+        SENDER_APP_PASSWORD: ${{ secrets.SENDER_APP_PASSWORD }}
+        RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
+      run: |
+        mvn clean test -Dtest=DailyUpdateTestRunner
+        
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-results
+        path: |
+          target/surefire-reports/
+          target/cucumber-reports/
+        retention-days: 7
+        
+    - name: Send Email Notification on Success
+      if: success()
+      uses: dawidd6/action-send-mail@v3
+      with:
+        server_address: smtp.gmail.com
+        server_port: 587
+        username: ${{ secrets.SENDER_EMAIL }}
+        password: ${{ secrets.SENDER_APP_PASSWORD }}
+        subject: "[SUCCESS] Naukri Profile Updated Successfully - Run #${{ github.run_number }}"
+        to: ${{ secrets.RECIPIENT_EMAIL }}
+        from: ${{ secrets.SENDER_EMAIL }}
+        html_body: |
+          <h2>[SUCCESS] Naukri Profile Update - SUCCESS</h2>
+          <p><strong>Date & Time:</strong> ${{ github.event.head_commit.timestamp }}</p>
+          <p><strong>Run Number:</strong> #${{ github.run_number }}</p>
+          <p><strong>Status:</strong> <span style="color: #28a745; font-weight: bold;">SUCCESS</span></p>
+          
+          <h3>What was updated:</h3>
+          <ul>
+            <li>[SUCCESS] Career profile location preferences updated</li>
+            <li>[SUCCESS] Resume uploaded successfully</li>
+            <li>[SUCCESS] Profile now shows "Updated Today" status</li>
+          </ul>
+          
+          <h3>Benefits:</h3>
+          <ul>
+            <li>Increased visibility to recruiters</li>
+            <li>Profile appears in recent searches</li>
+            <li>Shows active job seeking status</li>
+          </ul>
+          
+          <p><a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}">View detailed execution logs</a></p>
+          
+          <p style="font-size: 12px; color: #666;">
+            This is an automated notification from your Naukri Profile Update automation.
+          </p>
+          
+    - name: Send Email Notification on Failure
+      if: failure()
+      uses: dawidd6/action-send-mail@v3
+      with:
+        server_address: smtp.gmail.com
+        server_port: 587
+        username: ${{ secrets.SENDER_EMAIL }}
+        password: ${{ secrets.SENDER_APP_PASSWORD }}
+        subject: "[FAILED] Naukri Profile Update Failed - Run #${{ github.run_number }}"
+        to: ${{ secrets.RECIPIENT_EMAIL }}
+        from: ${{ secrets.SENDER_EMAIL }}
+        html_body: |
+          <h2>[FAILED] Naukri Profile Update - FAILED</h2>
+          <p><strong>Date & Time:</strong> ${{ github.event.head_commit.timestamp }}</p>
+          <p><strong>Run Number:</strong> #${{ github.run_number }}</p>
+          <p><strong>Status:</strong> <span style="color: #dc3545; font-weight: bold;">FAILED</span></p>
+          
+          <h3>Possible Issues:</h3>
+          <ul>
+            <li>[FAILED] Login credentials might be incorrect</li>
+            <li>[FAILED] Naukri website structure may have changed</li>
+            <li>[FAILED] Network connectivity issues</li>
+            <li>[FAILED] Resume file not found or accessible</li>
+          </ul>
+          
+          <h3>Next Steps:</h3>
+          <ul>
+            <li>Check the execution logs for detailed error information</li>
+            <li>Verify your Naukri credentials are correct</li>
+            <li>Ensure resume file is accessible</li>
+            <li>Consider manual profile update</li>
+          </ul>
+          
+          <p><a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}">View detailed error logs</a></p>
+          
+          <p style="font-size: 12px; color: #666;">
+            This is an automated notification from your Naukri Profile Update automation.
+          </p>

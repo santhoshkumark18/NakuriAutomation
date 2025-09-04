@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.time.Duration;
 import java.util.Properties;
+
 import org.openqa.selenium.Platform;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -54,6 +55,9 @@ public static WebDriver initilizeBrowser() throws IOException
         	 ChromeOptions op=new ChromeOptions();// 3 lines to skip the session not created exception
         	 op.addArguments("--no-sandbox");
         	 op.addArguments("--disable-dev-shm-usage");
+        	 if("true".equalsIgnoreCase(p.getProperty("headless"))) {
+        		 op.addArguments("--headless");
+        	 }
              capabilities.setBrowserName("chrome");
              break;
          case "edge":
@@ -77,7 +81,15 @@ public static WebDriver initilizeBrowser() throws IOException
 			{
 			case "chrome":
 				WebDriverManager.chromedriver().setup();
-		        driver=new ChromeDriver();
+				ChromeOptions chromeOptions = new ChromeOptions();
+				if("true".equalsIgnoreCase(p.getProperty("headless"))) {
+					chromeOptions.addArguments("--headless");
+					chromeOptions.addArguments("--no-sandbox");
+					chromeOptions.addArguments("--disable-dev-shm-usage");
+					chromeOptions.addArguments("--disable-gpu");
+					chromeOptions.addArguments("--window-size=1920,1080");
+				}
+		        driver=new ChromeDriver(chromeOptions);
 		        break;
 		    case "edge":
 		    	WebDriverManager.edgedriver().setup(); //wbmanager installs the compatible version of browser with driver and runs

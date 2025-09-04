@@ -6,8 +6,9 @@ import io.cucumber.junit.Cucumber;
 import io.cucumber.junit.CucumberOptions;
 
 @RunWith(Cucumber.class)
-@CucumberOptions(features="src/test/java/features/profile.feature",
-				  glue={"stepDefinitions","hooks"}
+@CucumberOptions(features="src/test/java/features/",
+				  glue={"stepDefinitions","hooks"},
+				  tags="@profileUpdate or @Login or @home"
 				  )
 public class TestRunner {
 

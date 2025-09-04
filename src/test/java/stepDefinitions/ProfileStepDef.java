@@ -92,6 +92,6 @@ public class ProfileStepDef {
 	@Then("Resume should br uploaded successfully")
 	public void resume_should_br_uploaded_successfully() {
 	    String name=pp.validateResumeName();
-	    assertTrue(name.contains("SanthoshKumarK_SDET_2Years.pdf"));
+	    assertTrue(name.contains("SanthoshKumarK.pdf"));
 	}
 }

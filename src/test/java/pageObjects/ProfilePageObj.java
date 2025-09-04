@@ -1,7 +1,5 @@
 package pageObjects;
 
-import java.time.Duration;
-
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -35,6 +33,8 @@ public class ProfilePageObj extends BaseClass {
 	WebElement location_label;
 	@FindBy(xpath = "//a[text()='Update']")
 	WebElement update_link;
+	@FindBy(xpath = "//input[@type='file']")
+	WebElement file_input;
 	@FindBy(xpath = "//div[contains(@class,\"resume-name\")]/div")
 	WebElement resume_name;
 
@@ -47,11 +47,97 @@ public class ProfilePageObj extends BaseClass {
 	}
 
 	public void uploadResume() {
-		update_link.sendKeys("C:\\Users\\santh\\OneDrive\\Desktop\\Resumes\\SanthoshKumarK_SDET_2Years.pdf");
 		try {
-			Thread.sleep(10000);
+			// First click the update link to trigger file input
+			System.out.println("Clicking update link...");
+			update_link.click();
+			
+			// Wait for file input to be available
+			Thread.sleep(3000);
+			
+			// Get the file path
+			java.util.Properties props = factory.Base.getProperties();
+			String resumePath = props.getProperty("resume_path", "src\\test\\resources\\files\\resume.pdf");
+			String fullPath = System.getProperty("user.dir") + "\\" + resumePath;
+			
+			// Check if file exists
+			java.io.File resumeFile = new java.io.File(fullPath);
+			if (!resumeFile.exists()) {
+				// Try fallback path
+				System.out.println("Resume not found at: " + fullPath + ", trying fallback...");
+				fullPath = "C:\\Users\\santh\\Documents\\SanthoshKumarK.pdf";
+				resumeFile = new java.io.File(fullPath);
+				if (!resumeFile.exists()) {
+					System.err.println("Resume file not found at fallback location: " + fullPath);
+					throw new RuntimeException("Resume file not found at: " + fullPath);
+				}
+			}
+			
+			System.out.println("Uploading resume from: " + fullPath);
+			
+			// Try to find and use file input element
+			try {
+				file_input.sendKeys(fullPath);
+				System.out.println("File path sent to file input element");
+			} catch (Exception e) {
+				System.err.println("Could not find file input element: " + e.getMessage());
+				// Alternative approach - sometimes file input is hidden
+				driver.findElement(org.openqa.selenium.By.xpath("//input[@type='file']")).sendKeys(fullPath);
+				System.out.println("File path sent using alternative method");
+			}
+			
+			// Wait for upload to complete
+			Thread.sleep(8000);
+			System.out.println("Resume upload completed");
+			
+		} catch (java.io.IOException e) {
+			System.err.println("Failed to load properties: " + e.getMessage());
+			handleFallbackUpload();
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			Thread.currentThread().interrupt();
+			System.err.println("Thread interrupted during file upload");
+		} catch (Exception e) {
+			System.err.println("Unexpected error during resume upload: " + e.getMessage());
+			handleFallbackUpload();
+		}
+	}
+	
+	private void handleFallbackUpload() {
+		try {
+			System.out.println("Attempting fallback resume upload...");
+			update_link.click();
+			Thread.sleep(3000);
+			
+			// Try multiple possible file input selectors
+			String[] selectors = {
+				"//input[@type='file']",
+				"//input[contains(@class,'file')]",
+				"//input[@accept]"
+			};
+			
+			String fallbackPath = "C:\\Users\\santh\\Documents\\SanthoshKumarK.pdf";
+			boolean uploaded = false;
+			
+			for (String selector : selectors) {
+				try {
+					WebElement fileElement = driver.findElement(org.openqa.selenium.By.xpath(selector));
+					fileElement.sendKeys(fallbackPath);
+					uploaded = true;
+					System.out.println("Fallback upload successful with selector: " + selector);
+					break;
+				} catch (Exception e) {
+					System.out.println("Selector failed: " + selector);
+				}
+			}
+			
+			if (!uploaded) {
+				System.err.println("All file upload methods failed");
+			}
+			
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			System.err.println("Thread interrupted during fallback upload");
 		}
 	}
 
