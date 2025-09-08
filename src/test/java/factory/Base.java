@@ -9,6 +9,7 @@ import java.util.Properties;
 
 import org.openqa.selenium.Platform;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.edge.EdgeDriver;
@@ -83,14 +84,40 @@ public static WebDriver initilizeBrowser() throws IOException
 			case "chrome":
 				WebDriverManager.chromedriver().setup();
 				ChromeOptions chromeOptions = new ChromeOptions();
+				
+				// Anti-detection measures
+				chromeOptions.addArguments("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36");
+				chromeOptions.addArguments("--disable-blink-features=AutomationControlled");
+				chromeOptions.setExperimentalOption("excludeSwitches", new String[]{"enable-automation"});
+				chromeOptions.setExperimentalOption("useAutomationExtension", false);
+				chromeOptions.addArguments("--disable-web-security");
+				chromeOptions.addArguments("--allow-running-insecure-content");
+				chromeOptions.addArguments("--disable-extensions");
+				chromeOptions.addArguments("--disable-plugins");
+				chromeOptions.addArguments("--no-first-run");
+				chromeOptions.addArguments("--disable-default-apps");
+				chromeOptions.addArguments("--disable-popup-blocking");
+				
 				if("true".equalsIgnoreCase(p.getProperty("headless"))) {
-					chromeOptions.addArguments("--headless");
+					chromeOptions.addArguments("--headless=new");
 					chromeOptions.addArguments("--no-sandbox");
 					chromeOptions.addArguments("--disable-dev-shm-usage");
 					chromeOptions.addArguments("--disable-gpu");
 					chromeOptions.addArguments("--window-size=1920,1080");
+					chromeOptions.addArguments("--remote-debugging-port=9222");
+				} else {
+					chromeOptions.addArguments("--start-maximized");
 				}
+				
 		        driver=new ChromeDriver(chromeOptions);
+		        
+		        // Execute anti-detection script
+		        JavascriptExecutor js = (JavascriptExecutor) driver;
+		        js.executeScript("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})");
+		        js.executeScript("Object.defineProperty(navigator, 'plugins', {get: () => [1, 2, 3, 4, 5]})");
+		        js.executeScript("Object.defineProperty(navigator, 'languages', {get: () => ['en-US', 'en']})");
+		        js.executeScript("window.chrome = { runtime: {} }");
+		        
 		        break;
 		    case "edge":
 		    	WebDriverManager.edgedriver().setup(); //wbmanager installs the compatible version of browser with driver and runs

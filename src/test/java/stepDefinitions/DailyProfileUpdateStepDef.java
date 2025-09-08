@@ -36,6 +36,28 @@ public class DailyProfileUpdateStepDef {
         System.out.println("✓ Navigated to Naukri - Current URL: " + driver.getCurrentUrl());
         System.out.println("✓ Page title: " + driver.getTitle());
         
+        // Check for access denied and retry
+        if(driver.getTitle().contains("Access Denied") || driver.getPageSource().contains("Access Denied")) {
+            System.out.println("⚠️ Access Denied detected, waiting and retrying...");
+            try {
+                Thread.sleep(5000); // Wait 5 seconds
+                driver.navigate().refresh(); // Refresh page
+                Thread.sleep(3000); // Wait for refresh
+                
+                if(driver.getTitle().contains("Access Denied")) {
+                    System.out.println("⚠️ Still getting Access Denied, trying different approach...");
+                    // Try navigating to different URL
+                    driver.navigate().to("https://www.naukri.com/nlogin/login");
+                    Thread.sleep(3000);
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        
+        System.out.println("✓ Final URL: " + driver.getCurrentUrl());
+        System.out.println("✓ Final Page title: " + driver.getTitle());
+        
         // Add wait for page to load completely
         try {
             Thread.sleep(3000); // Allow page to load
