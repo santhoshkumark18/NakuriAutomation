@@ -33,19 +33,19 @@ public class DailyProfileUpdateStepDef {
         wait = new WebDriverWait(driver, Duration.ofSeconds(15));
         lp = new LoginPageObj(driver);
         
-        System.out.println("✓ Navigated to Naukri - Current URL: " + driver.getCurrentUrl());
-        System.out.println("✓ Page title: " + driver.getTitle());
+        System.out.println("[SUCCESS] Navigated to Naukri - Current URL: " + driver.getCurrentUrl());
+        System.out.println("[SUCCESS] Page title: " + driver.getTitle());
         
         // Check for access denied and retry
         if(driver.getTitle().contains("Access Denied") || driver.getPageSource().contains("Access Denied")) {
-            System.out.println("⚠️ Access Denied detected, waiting and retrying...");
+            System.out.println("[WARNING] Access Denied detected, waiting and retrying...");
             try {
                 Thread.sleep(5000); // Wait 5 seconds
                 driver.navigate().refresh(); // Refresh page
                 Thread.sleep(3000); // Wait for refresh
                 
                 if(driver.getTitle().contains("Access Denied")) {
-                    System.out.println("⚠️ Still getting Access Denied, trying different approach...");
+                    System.out.println("[WARNING] Still getting Access Denied, trying different approach...");
                     // Try navigating to different URL
                     driver.navigate().to("https://www.naukri.com/nlogin/login");
                     Thread.sleep(3000);
@@ -55,8 +55,8 @@ public class DailyProfileUpdateStepDef {
             }
         }
         
-        System.out.println("✓ Final URL: " + driver.getCurrentUrl());
-        System.out.println("✓ Final Page title: " + driver.getTitle());
+        System.out.println("[SUCCESS] Final URL: " + driver.getCurrentUrl());
+        System.out.println("[SUCCESS] Final Page title: " + driver.getTitle());
         
         // Add wait for page to load completely
         try {
@@ -91,7 +91,7 @@ public class DailyProfileUpdateStepDef {
         try {
             // First try: Look for "View" element (original approach)
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.partialLinkText("View")));
-            System.out.println("✓ Login successful - Found 'View' element");
+            System.out.println("[SUCCESS] Login successful - Found 'View' element");
         } catch (Exception e1) {
             try {
                 // Second try: Look for profile-related elements
@@ -100,7 +100,7 @@ public class DailyProfileUpdateStepDef {
                     ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[contains(@href,'my-profile')]")),
                     ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[contains(@class,'profile')]"))
                 ));
-                System.out.println("✓ Login successful - Found profile element");
+                System.out.println("[SUCCESS] Login successful - Found profile element");
             } catch (Exception e2) {
                 try {
                     // Third try: Check if we're on dashboard/homepage after login
@@ -109,18 +109,22 @@ public class DailyProfileUpdateStepDef {
                         ExpectedConditions.urlContains("dashboard"),
                         ExpectedConditions.titleContains("Dashboard")
                     ));
-                    System.out.println("✓ Login successful - Detected post-login URL/title");
+                    System.out.println("[SUCCESS] Login successful - Detected post-login URL/title");
                 } catch (Exception e3) {
                     // Final fallback: Just wait and check current state
-                    Thread.sleep(5000);
-                    System.out.println("⚠️ Login verification uncertain. Current URL: " + driver.getCurrentUrl());
-                    System.out.println("⚠️ Page title: " + driver.getTitle());
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                    }
+                    System.out.println("[WARNING] Login verification uncertain. Current URL: " + driver.getCurrentUrl());
+                    System.out.println("[WARNING] Page title: " + driver.getTitle());
                     
                     // Check if we're still on login page (which would indicate failure)
                     if (driver.getCurrentUrl().contains("login") && driver.getPageSource().contains("Login")) {
                         throw new RuntimeException("Login appears to have failed - still on login page");
                     }
-                    System.out.println("✓ Proceeding with login verification assumption");
+                    System.out.println("[SUCCESS] Proceeding with login verification assumption");
                 }
             }
         }
@@ -132,9 +136,9 @@ public class DailyProfileUpdateStepDef {
         
         try {
             pp.clickViewProfile();
-            System.out.println("✓ Successfully navigated to profile page");
+            System.out.println("[SUCCESS] Successfully navigated to profile page");
         } catch (Exception e) {
-            System.out.println("⚠️ Profile navigation failed, trying alternative approach: " + e.getMessage());
+            System.out.println("[WARNING] Profile navigation failed, trying alternative approach: " + e.getMessage());
             // Fallback: direct navigation
             driver.navigate().to("https://www.naukri.com/mymynaukri/profile");
             try {

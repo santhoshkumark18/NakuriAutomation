@@ -24,7 +24,7 @@ public class LoginPageObj extends BaseClass{
 		// Since we're going directly to login page, check if login form is already visible
 		try {
 			if(username.isDisplayed()) {
-				System.out.println("✓ Login form is already visible - ready for credentials");
+				System.out.println("[SUCCESS] Login form is already visible - ready for credentials");
 				return;
 			}
 		} catch (Exception e) {
@@ -35,7 +35,7 @@ public class LoginPageObj extends BaseClass{
 		try {
 			// Try primary login element
 			if(login.isDisplayed()) {
-				System.out.println("✓ Found and clicking primary login element");
+				System.out.println("[SUCCESS] Found and clicking primary login element");
 				login.click();
 			}
 		} catch (Exception e) {
@@ -43,17 +43,17 @@ public class LoginPageObj extends BaseClass{
 				// Fallback to alternative login selector
 				System.out.println("Primary login element not found, trying fallback selector...");
 				loginFallback.click();
-				System.out.println("✓ Successfully clicked fallback login element");
+				System.out.println("[SUCCESS] Successfully clicked fallback login element");
 			} catch (Exception e2) {
 				// Final fallback - check if we're already authenticated
 				try {
 					if(driver.getCurrentUrl().contains("mymynaukri") || driver.getPageSource().contains("Welcome")) {
-						System.out.println("✓ Already logged in, skipping login step");
+						System.out.println("[SUCCESS] Already logged in, skipping login step");
 						return;
 					}
 				} catch (Exception e3) {
 					// Log detailed debugging info
-					System.out.println("❌ All login attempts failed");
+					System.out.println("[ERROR] All login attempts failed");
 					System.out.println("Current URL: " + driver.getCurrentUrl());
 					System.out.println("Page title: " + driver.getTitle());
 					System.out.println("Page source length: " + driver.getPageSource().length());

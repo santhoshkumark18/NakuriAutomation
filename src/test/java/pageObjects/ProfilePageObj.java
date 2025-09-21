@@ -44,16 +44,16 @@ public class ProfilePageObj extends BaseClass {
 		try {
 			if(view_profile_button.isDisplayed()) {
 				view_profile_button.click();
-				System.out.println("✓ Clicked primary 'View' profile button");
+				System.out.println("[SUCCESS] Clicked primary 'View' profile button");
 			}
 		} catch (Exception e) {
 			try {
 				view_profile_fallback.click();
-				System.out.println("✓ Clicked fallback profile button");
+				System.out.println("[SUCCESS] Clicked fallback profile button");
 			} catch (Exception e2) {
 				// Try direct navigation to profile page
 				driver.navigate().to("https://www.naukri.com/mymynaukri/profile");
-				System.out.println("✓ Navigated directly to profile page");
+				System.out.println("[SUCCESS] Navigated directly to profile page");
 			}
 		}
 	}
