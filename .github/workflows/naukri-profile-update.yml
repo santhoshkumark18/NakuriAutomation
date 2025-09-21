@@ -1,9 +1,10 @@
-name: Naukri Profile Daily Update
+name: Naukri Profile Twice Daily Update
 
 on:
   schedule:
-    # Runs daily at 7:30 AM IST (2:00 AM UTC)
-    - cron: '0 2 * * *'
+    # Runs twice daily at 8:00 AM IST (2:30 AM UTC) and 8:00 PM IST (2:30 PM UTC)
+    - cron: '30 2 * * *'   # 8:00 AM IST
+    - cron: '30 14 * * *'  # 8:00 PM IST
   workflow_dispatch: # Allows manual trigger
 
 jobs:
@@ -75,11 +76,11 @@ jobs:
         server_port: 587
         username: ${{ secrets.SENDER_EMAIL }}
         password: ${{ secrets.SENDER_APP_PASSWORD }}
-        subject: "[SUCCESS] Naukri Profile Updated Successfully - Run #${{ github.run_number }}"
+        subject: "[SUCCESS] Naukri Profile Updated Successfully - Twice Daily Run #${{ github.run_number }}"
         to: ${{ secrets.RECIPIENT_EMAIL }}
         from: ${{ secrets.SENDER_EMAIL }}
         html_body: |
-          <h2>[SUCCESS] Naukri Profile Update - SUCCESS</h2>
+          <h2>[SUCCESS] Naukri Profile Update - SUCCESS (Twice Daily)</h2>
           <p><strong>Date & Time:</strong> ${{ github.event.head_commit.timestamp }}</p>
           <p><strong>Run Number:</strong> #${{ github.run_number }}</p>
           <p><strong>Status:</strong> <span style="color: #28a745; font-weight: bold;">SUCCESS</span></p>
@@ -101,7 +102,7 @@ jobs:
           <p><a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}">View detailed execution logs</a></p>
           
           <p style="font-size: 12px; color: #666;">
-            This is an automated notification from your Naukri Profile Update automation.
+            This is an automated notification from your Naukri Profile Update automation (runs twice daily at 8 AM & 8 PM IST).
           </p>
           
     - name: Send Email Notification on Failure
@@ -112,11 +113,11 @@ jobs:
         server_port: 587
         username: ${{ secrets.SENDER_EMAIL }}
         password: ${{ secrets.SENDER_APP_PASSWORD }}
-        subject: "[FAILED] Naukri Profile Update Failed - Run #${{ github.run_number }}"
+        subject: "[FAILED] Naukri Profile Update Failed - Twice Daily Run #${{ github.run_number }}"
         to: ${{ secrets.RECIPIENT_EMAIL }}
         from: ${{ secrets.SENDER_EMAIL }}
         html_body: |
-          <h2>[FAILED] Naukri Profile Update - FAILED</h2>
+          <h2>[FAILED] Naukri Profile Update - FAILED (Twice Daily)</h2>
           <p><strong>Date & Time:</strong> ${{ github.event.head_commit.timestamp }}</p>
           <p><strong>Run Number:</strong> #${{ github.run_number }}</p>
           <p><strong>Status:</strong> <span style="color: #dc3545; font-weight: bold;">FAILED</span></p>
@@ -140,5 +141,5 @@ jobs:
           <p><a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}">View detailed error logs</a></p>
           
           <p style="font-size: 12px; color: #666;">
-            This is an automated notification from your Naukri Profile Update automation.
+            This is an automated notification from your Naukri Profile Update automation (runs twice daily at 8 AM & 8 PM IST).
           </p>
