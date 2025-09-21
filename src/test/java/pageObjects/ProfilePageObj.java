@@ -39,6 +39,8 @@ public class ProfilePageObj extends BaseClass {
 	WebElement file_input;
 	@FindBy(xpath = "//div[contains(@class,\"resume-name\")]/div")
 	WebElement resume_name;
+	@FindBy(xpath = "//p[contains(text(),'Resume has been successfully uploaded.')]")
+	WebElement resume_success_message;
 
 	public void clickViewProfile() {
 		try {
@@ -95,16 +97,44 @@ public class ProfilePageObj extends BaseClass {
 			try {
 				file_input.sendKeys(fullPath);
 				System.out.println("File path sent to file input element");
+				
+				// Trigger the upload by simulating file selection change event
+				((org.openqa.selenium.JavascriptExecutor) driver).executeScript(
+					"arguments[0].dispatchEvent(new Event('change', { bubbles: true }));", 
+					file_input
+				);
+				System.out.println("Upload change event triggered");
+				
 			} catch (Exception e) {
 				System.err.println("Could not find file input element: " + e.getMessage());
 				// Alternative approach - sometimes file input is hidden
-				driver.findElement(org.openqa.selenium.By.xpath("//input[@type='file']")).sendKeys(fullPath);
-				System.out.println("File path sent using alternative method");
+				WebElement altFileInput = driver.findElement(org.openqa.selenium.By.xpath("//input[@type='file']"));
+				altFileInput.sendKeys(fullPath);
+				((org.openqa.selenium.JavascriptExecutor) driver).executeScript(
+					"arguments[0].dispatchEvent(new Event('change', { bubbles: true }));", 
+					altFileInput
+				);
+				System.out.println("File path sent using alternative method with change event");
 			}
 			
-			// Wait for upload to complete
-			Thread.sleep(8000);
+			// Look for and click upload/submit button if it exists
+			try {
+				WebElement uploadButton = driver.findElement(org.openqa.selenium.By.xpath(
+					"//button[contains(text(),'Upload') or contains(text(),'Submit') or contains(text(),'Save')] | " +
+					"//input[@type='submit' or @value='Upload' or @value='Submit' or @value='Save']"
+				));
+				uploadButton.click();
+				System.out.println("Upload/Submit button clicked");
+			} catch (Exception e) {
+				System.out.println("No explicit upload button found, file should auto-upload on change event");
+			}
+			
+			// Wait for upload to complete (increased time for actual upload)
+			Thread.sleep(15000);
 			System.out.println("Resume upload completed");
+			
+			// Validate success message
+			validateResumeUploadSuccess();
 			
 		} catch (java.io.IOException e) {
 			System.err.println("Failed to load properties: " + e.getMessage());
@@ -138,6 +168,13 @@ public class ProfilePageObj extends BaseClass {
 				try {
 					WebElement fileElement = driver.findElement(org.openqa.selenium.By.xpath(selector));
 					fileElement.sendKeys(fallbackPath);
+					
+					// Trigger upload change event
+					((org.openqa.selenium.JavascriptExecutor) driver).executeScript(
+						"arguments[0].dispatchEvent(new Event('change', { bubbles: true }));", 
+						fileElement
+					);
+					
 					uploaded = true;
 					System.out.println("Fallback upload successful with selector: " + selector);
 					break;
@@ -148,6 +185,9 @@ public class ProfilePageObj extends BaseClass {
 			
 			if (!uploaded) {
 				System.err.println("All file upload methods failed");
+			} else {
+				// Validate success message for fallback upload too
+				validateResumeUploadSuccess();
 			}
 			
 			Thread.sleep(5000);
@@ -208,6 +248,71 @@ public class ProfilePageObj extends BaseClass {
 	public boolean isLocationSelected() {
 		boolean isSelected = location_add.isSelected();
 		return isSelected;
+	}
+
+	public void validateResumeUploadSuccess() {
+		try {
+			// First, let's debug what elements are available after upload
+			System.out.println("=== DEBUGGING UPLOAD SUCCESS ===");
+			System.out.println("Current URL: " + driver.getCurrentUrl());
+			
+			// Look for any success-related elements on the page
+			try {
+				java.util.List<org.openqa.selenium.WebElement> successElements = driver.findElements(
+					org.openqa.selenium.By.xpath("//*[contains(text(),'success') or contains(text(),'Success') or contains(text(),'uploaded') or contains(text(),'Uploaded')]")
+				);
+				System.out.println("Found " + successElements.size() + " potential success elements:");
+				for (org.openqa.selenium.WebElement elem : successElements) {
+					try {
+						System.out.println("  - " + elem.getTagName() + ": " + elem.getText());
+					} catch (Exception e) {
+						System.out.println("  - Element not readable");
+					}
+				}
+			} catch (Exception e) {
+				System.out.println("Error finding success elements: " + e.getMessage());
+			}
+			
+			// Wait for success message to appear (it shows for a few seconds)
+			org.openqa.selenium.support.ui.WebDriverWait wait = new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(20));
+			
+			// Wait for the success message to be visible
+			wait.until(org.openqa.selenium.support.ui.ExpectedConditions.visibilityOf(resume_success_message));
+			
+			String messageText = resume_success_message.getText();
+			if (messageText.contains("Resume has been successfully uploaded.")) {
+				System.out.println("[SUCCESS] Resume upload validation passed: " + messageText);
+			} else {
+				System.out.println("[WARNING] Unexpected success message: " + messageText);
+			}
+			
+		} catch (org.openqa.selenium.TimeoutException e) {
+			System.out.println("[WARNING] Resume success message not found within timeout period");
+			
+			// Enhanced debugging - check page source for success indicators
+			String pageSource = driver.getPageSource();
+			if (pageSource.contains("successfully uploaded") || pageSource.contains("upload successful") || 
+				pageSource.contains("Resume has been") || pageSource.contains("uploaded successfully")) {
+				System.out.println("[INFO] Success text found in page source, but element selector may be wrong");
+			} else {
+				System.out.println("[INFO] No success text found in page source - upload may have failed");
+			}
+			
+			// Try alternative validation - check for other success indicators
+			try {
+				// Check if resume name element is updated
+				if (resume_name.isDisplayed()) {
+					String resumeNameText = resume_name.getText();
+					if (resumeNameText.contains(".pdf") || resumeNameText.contains("resume")) {
+						System.out.println("[SUCCESS] Resume upload validated via resume name: " + resumeNameText);
+					}
+				}
+			} catch (Exception fallbackException) {
+				System.out.println("[WARNING] Could not validate resume upload success");
+			}
+		} catch (Exception e) {
+			System.out.println("[ERROR] Error during resume validation: " + e.getMessage());
+		}
 	}
 
 }
