@@ -21,7 +21,7 @@ This project automates daily profile updates on Naukri.com to keep your profile 
 
 ```
 NAUKRI_USERNAME: santhoshkumar18012002@gmail.com
-NAUKRI_PASSWORD: saN!thosh@027
+NAUKRI_PASSWORD: ********
 SENDER_EMAIL: your-gmail-account@gmail.com
 SENDER_APP_PASSWORD: your-gmail-app-password
 RECIPIENT_EMAIL: santhoshkumar18012002@gmail.com
