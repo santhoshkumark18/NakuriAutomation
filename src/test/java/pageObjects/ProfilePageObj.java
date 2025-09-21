@@ -13,6 +13,8 @@ public class ProfilePageObj extends BaseClass {
 
 	@FindBy(partialLinkText = "View")
 	WebElement view_profile_button;
+	@FindBy(xpath = "//a[contains(@href,'my-profile') or contains(text(),'Profile') or contains(text(),'View profile')]")
+	WebElement view_profile_fallback;
 	@FindBy(xpath = "//*[@id=\"_nj1mrmev4Navbar\"]/div")
 	WebElement chat_close;
 	@FindBy(xpath = "//div[contains(@class,\"quickLink \")]//span[contains(.,\"Career profile\")]")
@@ -39,7 +41,21 @@ public class ProfilePageObj extends BaseClass {
 	WebElement resume_name;
 
 	public void clickViewProfile() {
-		view_profile_button.click();
+		try {
+			if(view_profile_button.isDisplayed()) {
+				view_profile_button.click();
+				System.out.println("✓ Clicked primary 'View' profile button");
+			}
+		} catch (Exception e) {
+			try {
+				view_profile_fallback.click();
+				System.out.println("✓ Clicked fallback profile button");
+			} catch (Exception e2) {
+				// Try direct navigation to profile page
+				driver.navigate().to("https://www.naukri.com/mymynaukri/profile");
+				System.out.println("✓ Navigated directly to profile page");
+			}
+		}
 	}
 
 	public void clickUpdateLink() {
